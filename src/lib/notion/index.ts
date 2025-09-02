@@ -1,26 +1,17 @@
-import { notion } from "./client"
+import { notion } from "./resources/client"
+import { DatabaseItemsResponse, GetDatabaseItemsOptions } from "./types"
 
-type ListPostsOptions = {
-  tags?: string[];          // filtrar por multi_select "Tags"
-  query?: string;           // filtrar por título (contains)
-  pageSize?: number;        // paginação
-  startCursor?: string;     // paginação
-  tagProperty?: string;     // nome da coluna de tags (default "Tags")
-  titleProperty?: string;   // nome da coluna de título (default "Name")
-  sorts?: any[];            // sorts do Notion
-};
-
-export async function listPosts(options: ListPostsOptions = {}) {
-  const {
-    tags,
-    query,
-    pageSize = 10,
+export async function getDatabaseItems<T>(
+  {
+    pageSize = 100,
     startCursor,
-    tagProperty = "tags",
-    titleProperty = "title",
-    sorts = [{ property: "publishedAt", direction: "descending" }], // ajuste se não tiver "Date"
-  } = options
-
+    sorts,
+    query,
+    titleProperty,
+    tags,
+    tagProperty,
+  }: GetDatabaseItemsOptions = {},
+): Promise<DatabaseItemsResponse<T>> {
   const databaseId = process.env.NOTION_DATABASE_ID!
   // monta filtro composto
   const filters: any[] = []
@@ -53,12 +44,12 @@ export async function listPosts(options: ListPostsOptions = {}) {
     database_id: databaseId,
     filter,
     sorts,
-    page_size: Math.min(pageSize, 100),
+    page_size: pageSize,
     start_cursor: startCursor,
   })
 
   return {
-    results: res.results as any[],
+    results: res.results as unknown as T[],
     nextCursor: res.next_cursor ?? null,
     hasMore: res.has_more,
   }

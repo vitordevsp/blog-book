@@ -1,5 +1,5 @@
-import { RenderBlock } from "../"
-import { getPageBlocks } from "@/app/lib/notion"
+import { RenderBlock } from ".."
+import { getPageBlocks } from "@/lib/notion"
 import style from "./style.module.css"
 
 export async function NotionRenderer({ pageId }: { pageId: string }) {
