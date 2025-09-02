@@ -1,4 +1,4 @@
-import { NotionRenderer } from "@/app/lib/notion/components"
+import { NotionRenderer } from "@/lib/notion/components"
 import style from "./style.module.css"
 
 export default async function PostPage({ params }: { params: { id: string } }) {

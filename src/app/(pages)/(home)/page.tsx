@@ -1,19 +1,23 @@
 import Link from "next/link"
-import { listPosts } from "@/app/lib/notion"
+import { getDatabaseItems } from "@/lib/notion"
+import { richTextRender } from "@/lib/notion/resources/helpers"
 import style from "./style.module.css"
+import type { PostPage } from "./types"
 
 export default async function Home({
   searchParams,
 }: {
   searchParams?: { tag?: string; q?: string; cursor?: string };
 }) {
-  const { tag, q, cursor } = await searchParams || {}
+  const { tag, q: query, cursor } = await searchParams || {}
 
-  const { results, nextCursor, hasMore } = await listPosts({
+  const { results, nextCursor, hasMore } = await getDatabaseItems<PostPage>({
     tags: tag ? [tag] : undefined,
-    query: q,
-    pageSize: 10,
+    query,
     startCursor: cursor ?? undefined,
+    tagProperty: "tags",
+    titleProperty: "title",
+    sorts: [{ property: "publishedAt", direction: "descending" }],
   })
 
   console.log("results: ", results)
@@ -30,13 +34,13 @@ export default async function Home({
           <input
             type="text"
             name="q"
-            defaultValue={q ?? ""}
+            defaultValue={query ?? ""}
             placeholder="Buscar por título…"
             className={style.page__filter__input}
           />
 
           <button type="submit" className={style.page__filter__button}>
-            Buscar
+            <span>🔍</span> Buscar
           </button>
         </form>
 
@@ -49,33 +53,30 @@ export default async function Home({
       </div>
 
       <ul className={style.page__list}>
-        {results.map((p: any) => {
-          const props = p.properties || {}
-          const title = props?.title?.title?.[0]?.plain_text || "(sem título)"
-          const description = props?.description?.rich_text?.[0]?.plain_text
-          const tags: string[] = (props?.tags?.multi_select || []).map((t: any) => t.name)
+        {results.map((item) => {
+          const { title, description, tags } = item.properties
 
           return (
-            <li key={p.id}>
-              <Link href={`/${p.id}`} className={style.page__list__item}>
+            <li key={item.id}>
+              <Link href={`/${item.id}`} className={style.page__list__item}>
                 <h3 className={style.page__list__item__title}>
-                  {title}
+                  {richTextRender(title.title)}
                 </h3>
 
                 {description && (
                   <p className={style.page__list__item__description}>
-                    {description}
+                    {richTextRender(description.rich_text)}
                   </p>
                 )}
 
                 <div className={style.page__list__item__tags}>
-                  {tags.map((t) => (
+                  {tags.multi_select.map((tag) => (
                     <Link
-                      key={t}
-                      href={`/?tag=${encodeURIComponent(t)}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                      key={tag.id}
+                      href={`/?tag=${encodeURIComponent(tag.name)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
                       className={style.page__list__item__tag}
                     >
-                      #{t}
+                      {tag.name}
                     </Link>
                   ))}
                 </div>
@@ -89,7 +90,7 @@ export default async function Home({
         <div className={style.page__pagination}>
           <Link
             href={`/?${[
-              q ? `q=${encodeURIComponent(q)}` : "",
+              query ? `q=${encodeURIComponent(query)}` : "",
               tag ? `tag=${encodeURIComponent(tag)}` : "",
               nextCursor ? `cursor=${encodeURIComponent(nextCursor)}` : "",
             ]
