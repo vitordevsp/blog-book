@@ -1,11 +1,11 @@
-import {
+import type {
   NotionPage,
   NotionDateProperty,
   NotionMultiSelectProperty,
   NotionRichTextProperty,
   NotionSelectProperty,
   NotionTitleProperty,
-} from "@/lib/notion/types"
+} from "@/lib/notion"
 
 export type PostPage = NotionPage<{
   status: NotionSelectProperty<PostPageStatusOpt>

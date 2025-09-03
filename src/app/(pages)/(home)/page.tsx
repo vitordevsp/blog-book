@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { getDatabaseItems } from "@/lib/notion"
-import { richTextRender } from "@/lib/notion/resources/helpers"
+import { getDatabaseItems, richTextRender } from "@/lib/notion"
 import style from "./style.module.css"
 import type { PostPage } from "./types"
 

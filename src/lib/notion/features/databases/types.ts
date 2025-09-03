@@ -132,27 +132,6 @@ export type NotionPageUserRef = {
 }
 
 // ------------------------------
-// Computed Value por tipo
-// ------------------------------
-// export type ComputedValue<T> =
-//   T extends TitleProperty ? string :
-//   T extends RichTextProperty ? string :                                 // HTML pronto
-//   T extends DateProperty ? (T["date"]) :                                // {start,end,time_zone} | null
-//   T extends SelectProperty<infer Opt> ? (Opt | null) :
-//   T extends MultiSelectProperty<infer Opt> ? Opt[] :
-//   T extends FilesProperty ? Array<{ name: string; url: string }> :
-//   unknown;
-
-// // Acrescenta computed_value em cada property do schema
-// export type WithComputed<S extends PropertiesSchema> = {
-//   [K in keyof S]: S[K] & { computed_value: ComputedValue<S[K]> }
-// };
-
-// // Página tipada com o schema enriquecido
-// export type NotionPage<S extends PropertiesSchema> =
-//   NotionPageBase & { properties: WithComputed<S> };
-
-// ------------------------------
 // Tipos para consulta de itens no database
 // ------------------------------
 export type GetDatabaseItemsOptions = {
@@ -172,3 +151,24 @@ export type DatabaseItemsResponse<T> = {
   nextCursor: string | null;
   hasMore: boolean;
 };
+
+// ------------------------------
+// Computed Value por tipo
+// ------------------------------
+// export type ComputedValue<T> =
+//   T extends TitleProperty ? string :
+//   T extends RichTextProperty ? string :                                 // HTML pronto
+//   T extends DateProperty ? (T["date"]) :                                // {start,end,time_zone} | null
+//   T extends SelectProperty<infer Opt> ? (Opt | null) :
+//   T extends MultiSelectProperty<infer Opt> ? Opt[] :
+//   T extends FilesProperty ? Array<{ name: string; url: string }> :
+//   unknown;
+
+// // Acrescenta computed_value em cada property do schema
+// export type WithComputed<S extends PropertiesSchema> = {
+//   [K in keyof S]: S[K] & { computed_value: ComputedValue<S[K]> }
+// };
+
+// // Página tipada com o schema enriquecido
+// export type NotionPage<S extends PropertiesSchema> =
+//   NotionPageBase & { properties: WithComputed<S> };

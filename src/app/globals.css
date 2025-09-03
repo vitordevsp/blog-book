@@ -21,6 +21,7 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  line-height: 1.5;
 }
 
 a {
@@ -30,8 +31,4 @@ a {
 
 button {
   cursor: pointer;
-}
-
-p {
-  line-height: 1.5;
 }

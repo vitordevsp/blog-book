@@ -1,38 +1,3 @@
-import { NotionRichTextNode } from "../types"
-
-// ------------------------------
-// Helpers
-// ------------------------------
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-}
-
-// ------------------------------
-// Helpers de renderização
-// ------------------------------
-export function richTextRender(nodes: NotionRichTextNode[]): string {
-  // Render básico com suporte a bold, italic, code, underline, strike e link
-  return nodes.map(n => {
-    const txt = escapeHtml(n.text?.content ?? n.plain_text ?? "")
-    const a = n.annotations
-
-    let html = txt
-    if (a.code) html = `<code>${html}</code>`
-    if (a.bold) html = `<strong>${html}</strong>`
-    if (a.italic) html = `<em>${html}</em>`
-    if (a.underline) html = `<u>${html}</u>`
-    if (a.strikethrough) html = `<s>${html}</s>`
-
-    const link = n.text?.link?.url ?? n.href
-    if (link) html = `<a href="${escapeHtml(link)}" rel="noopener noreferrer" target="_blank">${html}</a>`
-
-    return html
-  }).join("")
-}
-
 // ------------------------------
 // Normalizadores para computed_value
 // ------------------------------
