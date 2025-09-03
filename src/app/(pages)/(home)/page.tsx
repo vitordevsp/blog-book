@@ -26,7 +26,10 @@ export default async function Home({
     <main className={style.page}>
       <header className={style.page__header}>
         <h1>Blog Book</h1>
-        <p>Um template simples de blog usando o Notion como CMS</p>
+
+        <p>
+          Um template simples de blog usando o Notion como CMS
+        </p>
       </header>
 
       <div className={style.page__filter}>
@@ -57,30 +60,34 @@ export default async function Home({
           const { title, description, tags } = item.properties
 
           return (
-            <li key={item.id}>
-              <Link href={`/${item.id}`} className={style.page__list__item}>
-                <h3 className={style.page__list__item__title}>
-                  {richTextRender(title.title)}
-                </h3>
+            <li key={item.id} className={style.page__list__item}>
+              <h3 className={style.page__list__item__title}>
+                {richTextRender(title.title)}
+              </h3>
 
-                {description && (
-                  <p className={style.page__list__item__description}>
-                    {richTextRender(description.rich_text)}
-                  </p>
-                )}
+              {description && (
+                <p className={style.page__list__item__description}>
+                  {richTextRender(description.rich_text)}
+                </p>
+              )}
 
-                <div className={style.page__list__item__tags}>
-                  {tags.multi_select.map((tag) => (
-                    <Link
-                      key={tag.id}
-                      href={`/?tag=${encodeURIComponent(tag.name)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                      className={style.page__list__item__tag}
-                    >
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              </Link>
+              <div className={style.page__list__item__tags}>
+                {tags.multi_select.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    href={`/?tag=${encodeURIComponent(tag.name)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+                    className={style.page__list__item__tag}
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+
+              <Link
+                href={`/${item.id}`}
+                className={style.page__list__item__overlay}
+                aria-label="Abrir post"
+              />
             </li>
           )
         })}

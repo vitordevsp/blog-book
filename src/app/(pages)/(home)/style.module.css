@@ -73,8 +73,8 @@
   padding: 24px;
   border-radius: 16px;
   transition: background-color 0.2s;
-  cursor: pointer;
 
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -89,6 +89,9 @@
 .page__list__item__description {}
 
 .page__list__item__tags {
+  position: relative;
+  z-index: 2;
+
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -102,8 +105,12 @@
   border-radius: 8px;
 }
 
-.page__list__item__link {
-  margin-top: 8px;
+.page__list__item__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: pointer;
+  display: block;
 }
 
 .page__pagination {
