@@ -24,7 +24,7 @@ export default async function Home({
   return (
     <main className={style.page}>
       <header className={style.page__header}>
-        <h1>Blog Book</h1>
+        <h1>Blog Notion CMS</h1>
 
         <p>
           Um template simples de blog usando o Notion como CMS

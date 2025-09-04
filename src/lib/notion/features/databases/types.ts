@@ -47,7 +47,11 @@ export type NotionDateProperty = {
 export type NotionSelectProperty<Option extends string = string> = {
   id: string;
   type: "select";
-  select: { id: string; name: Option; color: string } | null;
+  select: {
+    id: string;
+    name: Option;
+    color: string;
+  } | null;
 };
 
 export type NotionMultiSelectProperty<Option extends string = string> = {

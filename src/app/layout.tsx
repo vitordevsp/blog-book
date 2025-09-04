@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Blog Book",
+  title: "Blog Notion CMS",
   description: "Um blog simples usando Notion como CMS",
 }
 
