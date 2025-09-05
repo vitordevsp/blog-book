@@ -1,6 +1,8 @@
 import { notion } from "@/lib/notion/resources/client"
 import { DatabaseItemsResponse, GetDatabaseItemsOptions } from "./types"
 
+const databaseId = process.env.NOTION_DATABASE_ID!
+
 export async function getDatabaseItems<T>(
   {
     pageSize = 100,
@@ -12,8 +14,6 @@ export async function getDatabaseItems<T>(
     tagProperty,
   }: GetDatabaseItemsOptions = {},
 ): Promise<DatabaseItemsResponse<T>> {
-  const databaseId = process.env.NOTION_DATABASE_ID!
-
   // monta filtro composto
   const filters: any[] = []
 
@@ -47,11 +47,16 @@ export async function getDatabaseItems<T>(
     sorts,
     page_size: pageSize,
     start_cursor: startCursor,
-  })
+  }) as any
 
   return {
-    results: res.results as unknown as T[],
+    results: res.results as T[],
     nextCursor: res.next_cursor ?? null,
     hasMore: res.has_more,
   }
+}
+
+export async function getDatabaseProps<T>(): Promise<T> {
+  const db = await notion.databases.retrieve({ database_id: databaseId }) as any
+  return db as T
 }

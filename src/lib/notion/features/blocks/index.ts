@@ -1,5 +1,5 @@
 import { notion } from "../../resources/client"
-import type { NotionRichTextNode } from "../databases/types"
+import type { NotionRichTextNode } from "../pages/types"
 import type { AnyNotionBlock, BlockChildrenResponse, GetBlockChildrenOptions } from "./types"
 
 // ------------------------------

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { getDatabaseItems, richTextRender } from "@/lib/notion"
+import { getDatabaseItems, getDatabaseProps, richTextRender } from "@/lib/notion"
 import style from "./style.module.css"
 import type { PostPage } from "./types"
 
@@ -20,6 +20,12 @@ export default async function Home({
   })
 
   console.log("results: ", results)
+
+  const dbProps = await getDatabaseProps<PostPage>()
+
+  console.log("dbProps: ", dbProps)
+  console.log("dbProps (tags): ", (dbProps.properties.tags as any).multi_select.options)
+  console.log("dbProps (status): ", (dbProps.properties.status as any).select.options)
 
   return (
     <main className={style.page}>

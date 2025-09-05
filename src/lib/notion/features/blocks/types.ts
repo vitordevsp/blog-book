@@ -1,4 +1,4 @@
-import { NotionRichTextNode } from "../databases/types"
+import { NotionRichTextNode } from "../pages/types"
 
 // ------------------------------
 // Tipos de Blocks (essenciais para blog)
