@@ -3,4 +3,17 @@
   max-width: 990px;
   margin: 0 auto;
   padding: 32px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page__header {
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
 }
