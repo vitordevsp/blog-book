@@ -1,3 +1,5 @@
+export * from "./client"
+
 export * from "./components/PageRenderer"
 export * from "./components/RichTextRender"
 

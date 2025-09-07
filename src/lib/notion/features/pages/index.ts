@@ -1,4 +1,4 @@
-import { notion } from "../../resources/client"
+import { notion } from "@/lib/notion"
 
 /**
  * Retorna os detalhes (metadados + propriedades) de uma página pelo ID.

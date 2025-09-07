@@ -11,12 +11,12 @@ export default async function Home({
   const { tag, q: query, cursor } = await searchParams || {}
 
   const { results, nextCursor, hasMore } = await getDatabaseItems<PostPage>({
-    tags: tag ? [tag] : undefined,
-    query,
     startCursor: cursor ?? undefined,
-    tagProperty: "tags",
-    titleProperty: "title",
     sorts: [{ property: "publishedAt", direction: "descending" }],
+    where: [
+      { property: "title", type: "title", op: "contains", value: query },
+      { property: "tags", type: "multi_select", op: "any_of", value: [tag] },
+    ],
   })
 
   console.log("results: ", results)

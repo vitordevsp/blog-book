@@ -1,4 +1,4 @@
-import { notion } from "../../resources/client"
+import { notion } from "@/lib/notion"
 import type { NotionRichTextNode } from "../pages/types"
 import type { AnyNotionBlock, BlockChildrenResponse, GetBlockChildrenOptions } from "./types"
 
