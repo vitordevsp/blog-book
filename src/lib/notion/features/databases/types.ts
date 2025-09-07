@@ -1,13 +1,16 @@
+import { NotionPropertiesSchema } from "@/lib/notion"
+
 // ------------------------------
-// title: Functions | Tipos para consultas
+// title: Functions
 // description: tipos de entrada e saida de dados para consultas em bancos de dados do Notion
 // ------------------------------
 
-export type GetDatabaseItemsOptions = {
-  startCursor?: string                // paginação
-  pageSize?: number                   // paginação
-  where?: QueryFilter | QueryFilter[] // wrapper de filtros
-  sorts?: any[]                       // sorts do Notion
+export type GetDatabaseItemsOptions<P extends NotionPropertiesSchema = NotionPropertiesSchema> = {
+  startCursor?: string                 // paginação
+  pageSize?: number                    // paginação
+  // where?: QueryFilter | QueryFilter[]  // wrapper de filtros
+  where?: WhereFor<P>  // wrapper de filtros
+  sorts?: NotionSortFor<P>[]           // sorts do Notion
 }
 
 export type DatabaseItemsResponse<T> = {
@@ -17,7 +20,7 @@ export type DatabaseItemsResponse<T> = {
 }
 
 // ------------------------------
-// title: Filter (where) | Tipos para consultas
+// title: Where (filter)
 // description: construção de queries para buscas no Notion
 // ------------------------------
 
@@ -63,3 +66,43 @@ export type PropFilter =
 export type LogicNode = { and: QueryFilter[] } | { or: QueryFilter[] }
 
 export type QueryFilter = LogicNode | PropFilter
+
+// -------- WHERE “leve” --------
+// Reaproveita PropFilter/LogicNode/QueryFilter,
+// apenas substitui `property: string` por nomes do schema P.
+type LiftPropFilterToSchema<P extends NotionPropertiesSchema> =
+  // pega tudo que não é PropFilter e deixa igual (LogicNode e raw)
+  | LogicNode
+  | { raw: any }
+  // PropFilter, mas com property atrelado ao schema:
+  | (PropFilter extends infer F
+    ? F extends { property: string }
+    ? Omit<F, "property"> & { property: Extract<keyof P, string> }
+    : F
+    : never)
+
+// Para conveniência:
+export type WhereFor<P extends NotionPropertiesSchema> =
+  | LiftPropFilterToSchema<P>
+  | LiftPropFilterToSchema<P>[]
+
+// ------------------------------
+// title: Sorts
+// description: ordenar os resultados
+// ------------------------------
+
+// Direção do sort (oficial Notion)
+export type NotionSortDirection = "ascending" | "descending"
+
+// Timestamps suportados pelo sort
+export type NotionSortTimestamp = "created_time" | "last_edited_time"
+
+// Sort genérico por propriedade OU por timestamp
+export type NotionSort =
+  | { property: string; direction: NotionSortDirection }
+  | { timestamp: NotionSortTimestamp; direction: NotionSortDirection }
+
+// Variante “esperta”: amarra o nome da property ao schema das suas páginas
+export type NotionSortFor<P extends NotionPropertiesSchema> =
+  | { property: Extract<keyof P, string>; direction: NotionSortDirection }
+  | { timestamp: NotionSortTimestamp; direction: NotionSortDirection }

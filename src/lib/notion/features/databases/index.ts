@@ -1,17 +1,17 @@
-import { notion } from "@/lib/notion"
+import { notion, NotionPage, NotionPropertiesSchema } from "@/lib/notion"
 import { toNotionFilter } from "./filters"
 import type { DatabaseItemsResponse, GetDatabaseItemsOptions } from "./types"
 
 const databaseId = process.env.NOTION_DATABASE_ID!
 
-export async function getDatabaseItems<T>(
+export async function getDatabaseItems<T extends NotionPropertiesSchema>(
   {
     startCursor,
     pageSize = 100,
     where,
     sorts,
-  }: GetDatabaseItemsOptions = {},
-): Promise<DatabaseItemsResponse<T>> {
+  }: GetDatabaseItemsOptions<T> = {},
+): Promise<DatabaseItemsResponse<NotionPage<T>>> {
   const filter = toNotionFilter(where)
 
   console.log("filter: ", filter)
@@ -25,13 +25,14 @@ export async function getDatabaseItems<T>(
   }) as any
 
   return {
-    results: res.results as T[],
+    results: res.results as NotionPage<T>[],
     nextCursor: res.next_cursor ?? null,
     hasMore: res.has_more,
   }
 }
 
-export async function getDatabaseProps<T>(): Promise<T> {
+export async function getDatabaseProps<T extends NotionPropertiesSchema>(
+): Promise<NotionPage<T>> {
   const db = await notion.databases.retrieve({ database_id: databaseId }) as any
-  return db as T
+  return db as NotionPage<T>
 }

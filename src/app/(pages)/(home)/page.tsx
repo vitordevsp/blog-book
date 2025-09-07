@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { getDatabaseItems, getDatabaseProps, richTextRender } from "@/lib/notion"
 import style from "./style.module.css"
-import type { PostPage } from "./types"
+import type { PostProps } from "./types"
 
 export default async function Home({
   searchParams,
@@ -10,7 +10,7 @@ export default async function Home({
 }) {
   const { tag, q: query, cursor } = await searchParams || {}
 
-  const { results, nextCursor, hasMore } = await getDatabaseItems<PostPage>({
+  const { results, nextCursor, hasMore } = await getDatabaseItems<PostProps>({
     startCursor: cursor ?? undefined,
     sorts: [{ property: "publishedAt", direction: "descending" }],
     where: [
@@ -21,7 +21,7 @@ export default async function Home({
 
   console.log("results: ", results)
 
-  const dbProps = await getDatabaseProps<PostPage>()
+  const dbProps = await getDatabaseProps<PostProps>()
 
   console.log("dbProps: ", dbProps)
   console.log("dbProps (tags): ", (dbProps.properties.tags as any).multi_select.options)

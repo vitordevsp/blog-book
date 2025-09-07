@@ -110,6 +110,9 @@ export type NotionAnyProperty =
 
 export type NotionPropertiesSchema = Record<string, NotionAnyProperty>
 
+// Helper de verificação de tipos (gera erro em compile-time se não bater)
+export type EnsureNotionPropertiesSchema<P extends NotionPropertiesSchema> = P
+
 // ------------------------------
 // title: NotionPage
 // description: Página do Notion com propriedades tipadas

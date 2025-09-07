@@ -1,5 +1,5 @@
 import type {
-  NotionPage,
+  EnsureNotionPropertiesSchema,
   NotionDateProperty,
   NotionMultiSelectProperty,
   NotionRichTextProperty,
@@ -7,7 +7,7 @@ import type {
   NotionTitleProperty,
 } from "@/lib/notion"
 
-export type PostPage = NotionPage<{
+export type PostProps = EnsureNotionPropertiesSchema<{
   status: NotionSelectProperty<PostPageStatusOpt>
   tags: NotionMultiSelectProperty<string>
   publishedAt: NotionDateProperty
