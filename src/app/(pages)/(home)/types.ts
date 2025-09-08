@@ -8,11 +8,13 @@ import type {
 } from "@/lib/notion"
 
 export type PostProps = EnsureNotionPropertiesSchema<{
-  status: NotionSelectProperty<PostPageStatusOpt>
-  tags: NotionMultiSelectProperty<string>
-  publishedAt: NotionDateProperty
-  description: NotionRichTextProperty
-  title: NotionTitleProperty
+  Status: NotionSelectProperty
+  Wiki: NotionSelectProperty
+  Nome: NotionTitleProperty
+  Descricao: NotionRichTextProperty
+  Tags: NotionMultiSelectProperty<string>
+  "Publicado Em": NotionDateProperty
+  "Atualizado Em": NotionDateProperty
+  "Criado Em": NotionDateProperty
+  Ano: NotionSelectProperty
 }>
-
-type PostPageStatusOpt = "published" | "draft" | "private"

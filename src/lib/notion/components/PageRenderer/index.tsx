@@ -100,9 +100,10 @@ function BlockList({
   )
 }
 
-/**
- * Agrupa sequências contíguas do mesmo tipo de item de lista em um único UL/OL.
- */
+// ------------------------------
+// Agrupa sequências contíguas do mesmo tipo de item de lista em um único UL/OL
+// ------------------------------
+
 function groupListSequences(blocks: BaseBlock[]) {
   type Single = { kind: "single"; block: BaseBlock }
   type List = { kind: "list"; listType: "bulleted_list_item" | "numbered_list_item"; items: BaseBlock[] }

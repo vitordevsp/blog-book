@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { getDatabaseItems, getDatabaseProps, richTextRender } from "@/lib/notion"
+import { getDatabaseItems, richTextRender } from "@/lib/notion"
 import style from "./style.module.css"
 import type { PostProps } from "./types"
 
@@ -12,20 +12,19 @@ export default async function Home({
 
   const { results, nextCursor, hasMore } = await getDatabaseItems<PostProps>({
     startCursor: cursor ?? undefined,
-    sorts: [{ property: "publishedAt", direction: "descending" }],
-    where: [
-      { property: "title", type: "title", op: "contains", value: query },
-      { property: "tags", type: "multi_select", op: "any_of", value: [tag] },
-    ],
+    sorts: [{ property: "Publicado Em", direction: "ascending" }],
+    where: {
+      and: [
+        { property: "Publicado Em", type: "date", op: "is_not_empty" },
+      ],
+      or: [
+        { property: "Nome", type: "title", op: "contains", value: query },
+        { property: "Tags", type: "multi_select", op: "any_of", value: [tag] },
+      ],
+    },
   })
 
   console.log("results: ", results)
-
-  const dbProps = await getDatabaseProps<PostProps>()
-
-  console.log("dbProps: ", dbProps)
-  console.log("dbProps (tags): ", (dbProps.properties.tags as any).multi_select.options)
-  console.log("dbProps (status): ", (dbProps.properties.status as any).select.options)
 
   return (
     <main className={style.page}>
@@ -62,7 +61,7 @@ export default async function Home({
 
       <ul className={style.page__list}>
         {results.map((item) => {
-          const { title, description, tags } = item.properties
+          const { Nome: title, Descricao: description, Tags: tags } = item.properties
 
           return (
             <li key={item.id} className={style.page__list__item}>

@@ -1,6 +1,5 @@
 /* Wrapper opcional para escopo (use <div class="notion"> ... ) */
 .rendered {
-  --nt-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --nt-text: white;
   --nt-muted: #6b6f76;
   --nt-border: rgb(55, 55, 55);
@@ -29,7 +28,6 @@
 }
 
 .rendered {
-  font-family: var(--nt-font);
   color: var(--nt-text);
   line-height: 1.6;
 
