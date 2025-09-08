@@ -1,0 +1,20 @@
+/* ---------- Configs ---------- */
+
+.flexbox {
+  --flexbox-grow: 0;
+  --flexbox-direction: initial;
+  --flexbox-justify: initial;
+  --flexbox-align: initial;
+  --flexbox-gap: 0;
+}
+
+/* ---------- Classes ---------- */
+
+.flexbox {
+  display: flex;
+  flex-grow: var(--flexbox-grow);
+  flex-direction: var(--flexbox-direction);
+  justify-content: var(--flexbox-justify);
+  align-items: var(--flexbox-align);
+  gap: var(--flexbox-gap);
+}
