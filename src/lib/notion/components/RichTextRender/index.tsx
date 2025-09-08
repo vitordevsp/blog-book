@@ -25,7 +25,7 @@ export type RichTextNode = {
  *   <PageRenderer blocks={blocks} richTextRender={richTextRender} />
  */
 export function richTextRender(nodes: RichTextNode[]): React.ReactNode {
-  if (!nodes?.length) return null
+  if (!nodes || !nodes?.length) return null
   return (
     <>
       {nodes.map((n, i) => {

@@ -1,18 +1,23 @@
 import Link from "next/link"
+import { Chip } from "@/components"
 import { getDatabaseItems, richTextRender } from "@/lib/notion"
+import { formatDateBR } from "@/utils/date-handle"
 import style from "./style.module.css"
 import type { PostProps } from "./types"
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: { tag?: string; q?: string; cursor?: string };
+  searchParams?: { q?: string; cursor?: string; tag?: string; wiki?: string; }
 }) {
-  const { tag, q: query, cursor } = await searchParams || {}
+  const { tag, cursor, q: query, wiki } = await searchParams || {}
 
   const { results, nextCursor, hasMore } = await getDatabaseItems<PostProps>({
     startCursor: cursor ?? undefined,
-    sorts: [{ property: "Publicado Em", direction: "ascending" }],
+    sorts: [
+      { property: "Publicado Em", direction: "ascending" },
+      { property: "Criado Em", direction: "ascending" },
+    ],
     where: {
       and: [
         { property: "Publicado Em", type: "date", op: "is_not_empty" },
@@ -20,6 +25,7 @@ export default async function Home({
       or: [
         { property: "Nome", type: "title", op: "contains", value: query },
         { property: "Tags", type: "multi_select", op: "any_of", value: [tag] },
+        { property: "Wiki", type: "select", op: "equals", value: wiki },
       ],
     },
   })
@@ -51,6 +57,13 @@ export default async function Home({
           </button>
         </form>
 
+        {wiki && (
+          <p>
+            Filtrando por wiki: <strong>{wiki}</strong>{" "}
+            <Link href="/">[limpar]</Link>
+          </p>
+        )}
+
         {tag && (
           <p>
             Filtrando por tag: <strong>{tag}</strong>{" "}
@@ -61,29 +74,48 @@ export default async function Home({
 
       <ul className={style.page__list}>
         {results.map((item) => {
-          const { Nome: title, Descricao: description, Tags: tags } = item.properties
+          const title = richTextRender(item.properties.Nome.title)
+          const description = richTextRender(item.properties.Descricao.rich_text)
+          const wiki = item.properties.Wiki.select
+          const tags = item.properties.Tags.multi_select
+          const publishedIn = item.properties["Publicado Em"].date?.start
 
           return (
             <li key={item.id} className={style.page__list__item}>
               <h3 className={style.page__list__item__title}>
-                {richTextRender(title.title)}
+                {title}
               </h3>
+
+              <div className={style.page__list__item__tags}>
+                {publishedIn && (
+                  <Chip>
+                    🕓 {formatDateBR(publishedIn)}
+                  </Chip>
+                )}
+
+                {wiki && (
+                  <Chip
+                    href={`/?wiki=${encodeURIComponent(wiki.name)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
+                  >
+                    {wiki.name}
+                  </Chip>
+                )}
+              </div>
 
               {description && (
                 <p className={style.page__list__item__description}>
-                  {richTextRender(description.rich_text)}
+                  {description}
                 </p>
               )}
 
               <div className={style.page__list__item__tags}>
-                {tags.multi_select.map((tag) => (
-                  <Link
+                {tags.map((tag) => (
+                  <Chip
                     key={tag.id}
                     href={`/?tag=${encodeURIComponent(tag.name)}${query ? `&q=${encodeURIComponent(query)}` : ""}`}
-                    className={style.page__list__item__tag}
                   >
                     {tag.name}
-                  </Link>
+                  </Chip>
                 ))}
               </div>
 

@@ -1,33 +1,72 @@
-import { getPageById } from "@/lib/notion"
-import { PageRenderer, getAllBlockChildren, richTextRender } from "@/lib/notion"
-import type { PostPage } from "../types"
+import Link from "next/link"
+import { Chip } from "@/components"
+import { Flexbox } from "@/components/Flexbox"
+import { PageRenderer, getAllBlockChildren, getPageById, richTextRender } from "@/lib/notion"
+import { formatDateBR } from "@/utils/date-handle"
 import style from "./style.module.css"
+import type { PostProps } from "../types"
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = await params
+
+  const page = await getPageById<PostProps>(id)
+  console.log("page:", page)
+  if (!page) return <div>Post não encontrado</div>
+
   const blocks = await getAllBlockChildren(id, { deep: true })
   console.log("blocks:", blocks)
 
-  const page = await getPageById<PostPage>("51b1db49-2e81-4a6b-af03-e62e94bde4c7")
+  const title = richTextRender(page.properties.Nome.title)
+  const description = richTextRender(page.properties.Descricao.rich_text)
+  const wiki = page.properties.Wiki.select
+  const tags = page.properties.Tags.multi_select
+  const publishedIn = page.properties["Publicado Em"].date?.start
 
   return (
     <main className={`${style.page} notion`}>
+      <Link href="/">
+        <button>
+          <Flexbox gap="8px">
+            <b>{"<"}</b> Voltar para a home
+          </Flexbox>
+        </button>
+      </Link>
+
       <header className={style.page__header}>
+        <Flexbox gap="8px">
+          {publishedIn && (
+            <Chip>
+              🕓 {formatDateBR(publishedIn)}
+            </Chip>
+          )}
+
+          {wiki && (
+            <Chip
+              href={`/?wiki=${encodeURIComponent(wiki.name)}`}
+            >
+              {wiki.name}
+            </Chip>
+          )}
+        </Flexbox>
+
         <h1>
-          {richTextRender(page?.properties?.title?.title)}
+          {title}
         </h1>
 
         <p>
-          {richTextRender(page?.properties?.description?.rich_text)}
+          {description}
         </p>
 
-        <div>
-          {page?.properties.tags.multi_select.map((t) => (
-            <span key={t.id} className={style.page__tag}>
-              {t.name}
-            </span>
+        <Flexbox gap="8px">
+          {tags.map((tag) => (
+            <Chip
+              key={tag.id}
+              href={`/?tag=${encodeURIComponent(tag.name)}`}
+            >
+              {tag.name}
+            </Chip>
           ))}
-        </div>
+        </Flexbox>
       </header>
 
       <PageRenderer blocks={blocks} />
