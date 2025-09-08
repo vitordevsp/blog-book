@@ -3,22 +3,33 @@ import { QueryFilter } from "./types"
 export function toNotionFilter(input?: QueryFilter | QueryFilter[]): any | undefined {
   if (!input) return undefined
   const node = Array.isArray(input) ? { and: input } : input
+  console.log("node: ", node)
   const built = build(node)
-  const collapsed = collapse(built)
+  console.log("built: ", built)
+  const flattened = flattenSameOps(built)
+  console.log("flattened: ", flattened)
+  const collapsed = collapseShallow(flattened)
+  console.log("collapsed: ", collapsed)
   return collapsed
 }
 
 function build(node: QueryFilter): any | undefined {
   if ("raw" in node) return node.raw
 
-  // Compostos
-  if ("and" in node) {
-    const parts = node.and.map(build).filter(Boolean)
-    return parts.length ? { and: parts } : undefined
-  }
-  if ("or" in node) {
-    const parts = node.or.map(build).filter(Boolean)
-    return parts.length ? { or: parts } : undefined
+  const hasAnd = "and" in node && Array.isArray((node as any).and)
+  const hasOr = "or" in node && Array.isArray((node as any).or)
+
+  if (hasAnd || hasOr) {
+    const andParts = hasAnd ? (node as any).and.map(build).filter(Boolean) : []
+    const orParts = hasOr ? (node as any).or.map(build).filter(Boolean) : []
+
+    if (andParts.length && orParts.length) {
+      // AND obrigatório + OR opcional aninhado
+      return { and: [...andParts, { or: orParts }] }
+    }
+    if (andParts.length) return { and: andParts }
+    if (orParts.length) return { or: orParts }
+    return undefined
   }
 
   // Propriedades
@@ -83,8 +94,45 @@ function cleanStrArray(arr?: (string | undefined)[]) {
   return (arr ?? []).filter((s) => typeof s === "string" && s.trim() !== "")
 }
 
-/* Colapsa AND/OR com 0 ou 1 item (evita embrulhos desnecessários) */
-function collapse(v: any): any | undefined {
+function isGroup(v: any): v is { and?: any[]; or?: any[] } {
+  return v && (Array.isArray(v.and) || Array.isArray(v.or))
+}
+
+/** Achata grupos com o MESMO operador (or/and) em toda a árvore */
+function flattenSameOps(node: any): any | undefined {
+  if (!node) return undefined
+
+  // and-group
+  if (node.and && Array.isArray(node.and)) {
+    const children = node.and.map(flattenSameOps).filter(Boolean)
+    const flat: any[] = []
+    for (const c of children) {
+      if (isGroup(c) && Array.isArray(c.and)) flat.push(...c.and)
+      else flat.push(c)
+    }
+    if (flat.length === 0) return undefined
+    if (flat.length === 1) return flat[0]
+    return { and: flat }
+  }
+
+  // or-group
+  if (node.or && Array.isArray(node.or)) {
+    const children = node.or.map(flattenSameOps).filter(Boolean)
+    const flat: any[] = []
+    for (const c of children) {
+      if (isGroup(c) && Array.isArray(c.or)) flat.push(...c.or)
+      else flat.push(c)
+    }
+    if (flat.length === 0) return undefined
+    if (flat.length === 1) return flat[0]
+    return { or: flat }
+  }
+
+  return node
+}
+
+/** Colapsa grupos com 0/1 itens */
+function collapseShallow(v: any): any | undefined {
   if (!v) return undefined
   if (v.and && Array.isArray(v.and)) {
     const a = v.and.filter(Boolean)
@@ -106,8 +154,6 @@ function collapse(v: any): any | undefined {
 function mapText(n: { op: string; value?: string }) {
   const { op, value } = n
 
-  if (isEmptyString(value)) return undefined
-
   switch (op) {
     case "contains":
     case "does_not_contain":
@@ -115,6 +161,7 @@ function mapText(n: { op: string; value?: string }) {
     case "does_not_equal":
     case "starts_with":
     case "ends_with":
+      if (isEmptyString(value)) return undefined
       return { [op]: value! }
     case "is_empty":
     case "is_not_empty":
@@ -127,11 +174,10 @@ function mapText(n: { op: string; value?: string }) {
 function mapSelect(n: { op: string; value?: string }) {
   const { op, value } = n
 
-  if (isEmptyString(value)) return undefined
-
   switch (op) {
     case "equals":
     case "does_not_equal":
+      if (isEmptyString(value)) return undefined
       return { [op]: value }
     case "is_empty":
     case "is_not_empty":
@@ -184,15 +230,14 @@ function mapMulti(
 function mapDate(n: { op: string; value?: string }) {
   const { op, value } = n
 
-  if (isEmptyString(value)) return undefined
-
   switch (op) {
     case "before":
     case "after":
     case "on_or_before":
     case "on_or_after":
     case "equals":
-      return { [op]: value }
+      if (isEmptyString(value)) return undefined
+      else return { [op]: value }
     case "past_week":
     case "past_month":
     case "past_year":
@@ -211,8 +256,6 @@ function mapDate(n: { op: string; value?: string }) {
 function mapNumber(n: { op: string; value?: number }) {
   const { op, value } = n
 
-  if (value == null || Number.isNaN(value)) return undefined
-
   switch (op) {
     case "equals":
     case "does_not_equal":
@@ -220,6 +263,7 @@ function mapNumber(n: { op: string; value?: number }) {
     case "less_than":
     case "greater_than_or_equal_to":
     case "less_than_or_equal_to":
+      if (value == null || Number.isNaN(value)) return undefined
       return { [op]: value }
     case "is_empty":
     case "is_not_empty":
